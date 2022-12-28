@@ -39,7 +39,7 @@ def validate(args):
 
     model, variables = create_model(args.model, pretrained=True, dtype=model_dtype, rng=rng)
     print(f'Created {args.model} model. Validating...')
-
+    import ipdb; ipdb.set_trace()
     if args.no_jit:
         eval_step = lambda images, labels: eval_forward(model.apply, variables, images, labels)
     else:
@@ -91,11 +91,12 @@ def prepare_tf_data(xs):
     return jax.tree_map(_prepare, xs)
 
 
-def create_eval_iter(data_dir, batch_size, image_size, dataset_name='imagenet2012:5.0.0', half_precision=False,
+def create_eval_iter(data_dir, batch_size, image_size, dataset_name='imagenet2012:5.1.0', half_precision=False,
                      mean=None, std=None, interpolation='bicubic'):
     dataset_builder = tfds.builder(dataset_name, data_dir=data_dir)
     assert dataset_builder.info.splits['validation'].num_examples % batch_size == 0
     num_batches = dataset_builder.info.splits['validation'].num_examples // batch_size
+    dataset_builder.download_and_prepare(download_dir=data_dir)
     ds = input_pipeline.create_split(
         dataset_builder, batch_size, train=False, half_precision=half_precision,
         image_size=image_size, mean=mean, std=std, interpolation=interpolation, no_repeat=True)
@@ -111,7 +112,7 @@ def eval_forward(apply_fn, variables, images, labels):
 
 def main():
     args = parser.parse_args()
-    print('JAX host: %d / %d' % (jax.host_id(), jax.host_count()))
+    print('JAX host: %d / %d' % (jax.process_index(), jax.process_count()))
     print('JAX devices:\n%s' % '\n'.join(str(d) for d in jax.devices()), flush=True)
 
     if get_model_cfg(args.model) is not None:

@@ -83,9 +83,9 @@ def eval_forward(model, variables, images, labels):
 
 def main():
     args = parser.parse_args()
-    print('JAX host: %d / %d' % (jax.host_id(), jax.host_count()))
+    print('JAX host: %d / %d' % (jax.process_index(), jax.process_count()))
     print('JAX devices:\n%s' % '\n'.join(str(d) for d in jax.devices()), flush=True)
-    jax.config.enable_omnistaging()
+    # jax.config.enable_omnistaging()
 
     def _try_validate(args):
         res = None

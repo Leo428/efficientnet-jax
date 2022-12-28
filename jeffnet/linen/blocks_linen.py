@@ -290,8 +290,8 @@ class EfficientHead(nn.Module):
         x = self.conv_layer(self.num_features, 1, bias=True, name='conv_pw')(x)
         x = self.act_fn(x)
         x = Dropout(rate=self.drop_rate)(x, training=training)
-        if self.num_classes > 0:
-            x = self.linear_layer(self.num_classes, bias=True, name='classifier')(x)
+        # if self.num_classes > 0:
+        #     x = self.linear_layer(self.num_classes, bias=True, name='classifier')(x)
         return x
 
 

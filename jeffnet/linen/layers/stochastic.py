@@ -2,14 +2,12 @@
 Hacked together by / Copyright 2020 Ross Wightman (https://github.com/rwightman)
 """
 from typing import Any
-
+import jax
 from jax import lax
 from jax import random
 import jax.numpy as jnp
 
 import flax.linen as nn
-from flax.nn import make_rng
-
 
 PRNGKey = Any
 
@@ -36,7 +34,7 @@ class Dropout(nn.Module):
             return x
         keep_prob = 1. - self.rate
         if rng is None:
-            rng = self.make_rng('dropout')
+            rng = random.PRNGKey(3)
         mask = random.bernoulli(rng, p=keep_prob, shape=x.shape)
         return lax.select(mask, x / keep_prob, jnp.zeros_like(x))
 
@@ -55,7 +53,7 @@ def drop_path(x: jnp.array, drop_rate: float = 0., rng=None) -> jnp.array:
         return x
     keep_prob = 1. - drop_rate
     if rng is None:
-        rng = make_rng()
+        rng = random.PRNGKey(3)
     mask = random.bernoulli(key=rng, p=keep_prob, shape=(x.shape[0], 1, 1, 1))
     mask = jnp.broadcast_to(mask, x.shape)
     return lax.select(mask, x / keep_prob, jnp.zeros_like(x))
@@ -69,5 +67,5 @@ class DropPath(nn.Module):
         if not training or self.rate == 0.:
             return x
         if rng is None:
-            rng = self.make_rng('dropout')
+            rng = random.PRNGKey(3)
         return drop_path(x, self.rate, rng)

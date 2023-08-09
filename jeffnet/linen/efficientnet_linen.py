@@ -91,10 +91,10 @@ class EfficientNet(nn.Module):
             for block in stage:
                 x = block(x, training=training)
 
-        head_layer = EfficientHead if self.efficient_head else Head
-        x = head_layer(
-            num_features=self.num_features, num_classes=self.num_classes, drop_rate=self.drop_rate,
-            **lkwargs, dtype=self.dtype, linear_layer=linear_layer, name='head')(x, training=training)
+        # head_layer = EfficientHead if self.efficient_head else Head
+        # x = head_layer(
+        #     num_features=self.num_features, num_classes=self.num_classes, drop_rate=self.drop_rate,
+        #     **lkwargs, dtype=self.dtype, linear_layer=linear_layer, name='head')(x, training=training)
         return x
 
 
